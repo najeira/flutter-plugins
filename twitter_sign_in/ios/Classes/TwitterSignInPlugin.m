@@ -1,8 +1,20 @@
 #import "TwitterSignInPlugin.h"
-#import <twitter_sign_in/twitter_sign_in-Swift.h>
 
 @implementation TwitterSignInPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
-  [SwiftTwitterSignInPlugin registerWithRegistrar:registrar];
+  FlutterMethodChannel* channel = [FlutterMethodChannel
+      methodChannelWithName:@"twitter_sign_in"
+            binaryMessenger:[registrar messenger]];
+  TwitterSignInPlugin* instance = [[TwitterSignInPlugin alloc] init];
+  [registrar addMethodCallDelegate:instance channel:channel];
 }
+
+- (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
+  if ([@"getPlatformVersion" isEqualToString:call.method]) {
+    result([@"iOS " stringByAppendingString:[[UIDevice currentDevice] systemVersion]]);
+  } else {
+    result(FlutterMethodNotImplemented);
+  }
+}
+
 @end
