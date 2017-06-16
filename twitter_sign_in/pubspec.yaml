@@ -1,0 +1,14 @@
+name: twitter_sign_in
+description: A Flutter plugin for Twitter Sign In.
+version: 0.0.1
+author: najeira
+homepage: https://github.com/najeira/flutter-plugins
+
+flutter:
+  plugin:
+    androidPackage: com.najeira.twittersignin
+    pluginClass: TwitterSignInPlugin
+
+dependencies:
+  flutter:
+    sdk: flutter
