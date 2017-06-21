@@ -1,0 +1,22 @@
+PODS:
+  - device_info (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+
+DEPENDENCIES:
+  - device_info (from `/Users/najeira/Projects/michael/carapp-flutter/plugins/device_info/ios`)
+  - Flutter (from `/Applications/flutter/bin/cache/artifacts/engine/ios`)
+
+EXTERNAL SOURCES:
+  device_info:
+    :path: /Users/najeira/Projects/michael/carapp-flutter/plugins/device_info/ios
+  Flutter:
+    :path: /Applications/flutter/bin/cache/artifacts/engine/ios
+
+SPEC CHECKSUMS:
+  device_info: 3ebad48f726348f69abd802f3334a8d1ed795fbd
+  Flutter: d674e78c937094a75ac71dd77e921e840bea3dbf
+
+PODFILE CHECKSUM: cc70c01bca487bebd110b87397f017f3b76a89f1
+
+COCOAPODS: 1.2.1
