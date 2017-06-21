@@ -15,6 +15,8 @@
     result([@"iOS " stringByAppendingString:[[UIDevice currentDevice] systemVersion]]);
   } else if ([@"systemVersion" isEqualToString:call.method]) {
     result([[UIDevice currentDevice] systemVersion]);
+  } else if ([@"model" isEqualToString:call.method]) {
+    result([[UIDevice currentDevice] model]);
   } else if ([@"modelName" isEqualToString:call.method]) {
     result([self getModelName]);
   } else {
