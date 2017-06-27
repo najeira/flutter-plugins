@@ -1,5 +1,7 @@
 package com.najeira.deviceinfo;
 
+import android.os.Build;
+
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
@@ -21,7 +23,13 @@ public class DeviceInfoPlugin implements MethodCallHandler {
   @Override
   public void onMethodCall(MethodCall call, Result result) {
     if (call.method.equals("getPlatformVersion")) {
-      result.success("Android " + android.os.Build.VERSION.RELEASE);
+      result.success("Android " + Build.VERSION.RELEASE);
+    } else if ("systemVersion".equals(call.method)) {
+      result.success(Build.VERSION.RELEASE);
+    } else if ("model".equals(call.method)) {
+      result.success("Linux");
+    } else if ("modelName".equals(call.method)) {
+      result.success(Build.MODEL);
     } else {
       result.notImplemented();
     }
