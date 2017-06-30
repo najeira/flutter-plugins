@@ -4,9 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 
-import com.linchaolong.android.imagepicker.ImagePicker;
-import com.linchaolong.android.imagepicker.cropper.CropImage;
-import com.linchaolong.android.imagepicker.cropper.CropImageView;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageActivity;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
@@ -80,6 +80,11 @@ public class ImagePickerPlugin implements MethodCallHandler,
         @Override
         public void onPickImage(Uri imageUri) {
             // crop will be called after this method.
+        }
+
+        @Override
+        public void onCancel() {
+            flutterResult.success(null);
         }
 
         @Override

@@ -36,8 +36,6 @@ android {
 }
 dependencies {
     compile 'com.android.support:support-annotations:25.4.0'
-    //compile('com.sangcomz:FishBun:0.7.1@aar') {
-    //    transitive = true
-    //}
-    compile 'com.linchaolong.android:imagepicker:1.5'
+    //compile 'com.linchaolong.android:imagepicker:1.5'
+    compile 'com.theartofdev.edmodo:android-image-cropper:2.4.+'
 }
