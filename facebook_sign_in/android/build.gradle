@@ -13,6 +13,7 @@ buildscript {
 
 allprojects {
     repositories {
+        mavenCentral()
         jcenter()
         maven {
             url "https://maven.google.com"
@@ -32,4 +33,8 @@ android {
     lintOptions {
         disable 'InvalidPackage'
     }
+}
+
+dependencies {
+    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
 }
