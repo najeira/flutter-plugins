@@ -5,12 +5,8 @@ import 'package:flutter/services.dart';
 class TwitterSignIn {
   static const MethodChannel _channel = const MethodChannel('twitter_sign_in');
   
-  static Future<String> get platformVersion => _channel.invokeMethod('getPlatformVersion');
-  
   // Start Twitter with your consumer key and secret.
-  // These will override any credentials present in your applications Info.plist.
-  // You do not need to call this method unless you wish to provide credentials other than those
-  // in your Info.plist.
+  // These will override any credentials present in your applications Info.plist or AndroidManifest.xml.
   static Future<Null> init(String consumer, String secret) async {
     return _channel.invokeMethod('init', <String, String>{"consumer": consumer, "secret": secret});
   }

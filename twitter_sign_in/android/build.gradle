@@ -30,3 +30,10 @@ android {
         disable 'InvalidPackage'
     }
 }
+
+dependencies {
+    compile 'com.twitter.sdk.android:twitter-core:3.0.0'
+    //compile 'com.twitter.sdk.android:tweet-ui:3.0.0'
+    //compile 'com.twitter.sdk.android:tweet-composer:3.0.0'
+    //compile 'com.twitter.sdk.android:twitter-mopub:3.0.0'
+}

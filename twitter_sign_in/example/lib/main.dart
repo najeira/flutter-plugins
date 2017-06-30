@@ -12,7 +12,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  String _message;
 
   @override
   initState() {
@@ -22,12 +22,12 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
+    String message;
     try {
-      platformVersion = await TwitterSignIn.platformVersion;
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+      await TwitterSignIn.init("dummyToken", "dummySecret");
+      message = 'init';
+    } on PlatformException catch (ex) {
+      message = ex.toString();
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -37,7 +37,7 @@ class _MyAppState extends State<MyApp> {
       return;
 
     setState(() {
-      _platformVersion = platformVersion;
+      _message = message;
     });
   }
 
@@ -46,10 +46,10 @@ class _MyAppState extends State<MyApp> {
     return new MaterialApp(
       home: new Scaffold(
         appBar: new AppBar(
-          title: new Text('Plugin example app'),
+          title: new Text('Twitter plugin app'),
         ),
         body: new Center(
-          child: new Text('Running on: $_platformVersion\n'),
+          child: new Text(_message),
         ),
       ),
     );
