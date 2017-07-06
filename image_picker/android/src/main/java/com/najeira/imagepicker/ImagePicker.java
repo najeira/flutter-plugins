@@ -1,13 +1,19 @@
 package com.najeira.imagepicker;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.os.Parcelable;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -197,28 +203,13 @@ class ImagePicker {
         return false;
     }
 
-    private static String getRealPathFromUri(Context context, Uri contentUri) {
-        Cursor cursor = null;
-        try {
-            String[] proj = {MediaStore.Images.Media.DATA};
-            cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
-            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            return cursor.getString(column_index);
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-    }
-
     boolean onRequestPermissionsResult(Activity activity, int requestCode, String permissions[],
-                                    int[] grantResults) {
+                                       int[] grantResults) {
         return onRequestPermissionsResultInner(activity, null, requestCode, permissions, grantResults);
     }
 
     boolean onRequestPermissionsResult(Fragment fragment, int requestCode, String permissions[],
-                                    int[] grantResults) {
+                                       int[] grantResults) {
         return onRequestPermissionsResultInner(null, fragment, requestCode, permissions, grantResults);
     }
 
@@ -296,13 +287,92 @@ class ImagePicker {
     }
 
     private Uri handleUri(Context context, Uri imageUri) {
-        if ("content".equals(imageUri.getScheme())) {
-            String realPathFromUri = getRealPathFromUri(context, imageUri);
-            if (!TextUtils.isEmpty(realPathFromUri)) {
-                return Uri.fromFile(new File(realPathFromUri));
-            }
+        final String realPathFromUri = getRealPathFromUri(context, imageUri);
+        if (!TextUtils.isEmpty(realPathFromUri)) {
+            return Uri.fromFile(new File(realPathFromUri));
         }
         return imageUri;
+    }
+
+    private static class DocumentId {
+        final String type;
+        final String arg;
+
+        private DocumentId(String type, String arg) {
+            this.type = type;
+            this.arg = arg;
+        }
+
+        @TargetApi(Build.VERSION_CODES.KITKAT)
+        private static DocumentId parse(final Uri uri) {
+            final String docId = DocumentsContract.getDocumentId(uri);
+            final String[] split = docId.split(":");
+            final String type = split[0];
+            return new DocumentId(split[0], split[1]);
+        }
+    }
+
+    // https://github.com/iPaulPro/aFileChooser/blob/master/aFileChooser/src/com/ipaulpro/afilechooser/utils/FileUtils.java
+    private static String getRealPathFromUri(final Context context, final Uri uri) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (DocumentsContract.isDocumentUri(context, uri)) {
+                final String authority = uri.getAuthority();
+                if ("com.android.externalstorage.documents".equals(authority)) {
+                    final DocumentId docId = DocumentId.parse(uri);
+                    if ("primary".equalsIgnoreCase(docId.type)) {
+                        return Environment.getExternalStorageDirectory() + "/" + docId.arg;
+                    }
+                } else if ("com.android.providers.downloads.documents".equals(authority)) {
+                    final String id = DocumentsContract.getDocumentId(uri);
+                    final Uri contentUri = ContentUris.withAppendedId(
+                            Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                    return getDataColumn(context, contentUri, null, null);
+                } else if ("com.android.providers.media.documents".equals(authority)) {
+                    final DocumentId docId = DocumentId.parse(uri);
+                    final String selection = "_id=?";
+                    final String[] selectionArgs = new String[]{docId.arg};
+                    if ("image".equalsIgnoreCase(docId.type)) {
+                        return getDataColumn(context, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection, selectionArgs);
+                    } else if ("video".equalsIgnoreCase(docId.type)) {
+                        return getDataColumn(context, MediaStore.Video.Media.EXTERNAL_CONTENT_URI, selection, selectionArgs);
+                    } else if ("audio".equalsIgnoreCase(docId.type)) {
+                        return getDataColumn(context, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, selection, selectionArgs);
+                    }
+                }
+            }
+        }
+
+        final String scheme = uri.getScheme();
+        if ("content".equalsIgnoreCase(scheme)) {
+            if ("com.google.android.apps.photos.content".equals(scheme)) {
+                return uri.getLastPathSegment();
+            }
+            return getDataColumn(context, uri, null, null);
+        } else if ("file".equalsIgnoreCase(scheme)) {
+            return uri.getPath();
+        }
+        return null;
+    }
+
+    private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
+        final ContentResolver contentResolver = context.getContentResolver();
+        if (contentResolver == null) {
+            return null;
+        }
+        final String[] columns = {MediaStore.Images.Media.DATA};
+        Cursor cursor = null;
+        try {
+            cursor = contentResolver.query(uri, columns, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                final int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                return cursor.getString(columnIndex);
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return null;
     }
 
     static abstract class Callback {

@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 
 import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageActivity;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import io.flutter.plugin.common.MethodChannel;
@@ -84,12 +83,18 @@ public class ImagePickerPlugin implements MethodCallHandler,
 
         @Override
         public void onCancel() {
-            flutterResult.success(null);
+            if (flutterResult != null) {
+                flutterResult.success(null);
+                flutterResult = null;
+            }
         }
 
         @Override
         public void onCropImage(Uri imageUri) {
-            flutterResult.success(imageUri.toString());
+            if (flutterResult != null) {
+                flutterResult.success(imageUri.getPath());
+                flutterResult = null;
+            }
         }
 
         public void cropConfig(CropImage.ActivityBuilder builder) {
@@ -100,7 +105,10 @@ public class ImagePickerPlugin implements MethodCallHandler,
         }
 
         public void onPermissionDenied(int requestCode, String permissions[], int[] grantResults) {
-            flutterResult.error("pick", "permission", null);
+            if (flutterResult != null) {
+                flutterResult.error("pick", "permission", null);
+                flutterResult = null;
+            }
         }
     }
 }
