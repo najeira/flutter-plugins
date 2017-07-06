@@ -19,6 +19,8 @@ import com.facebook.login.LoginResult;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 /**
  * FacebookSignInPlugin
@@ -87,7 +89,6 @@ public class FacebookSignInPlugin implements MethodCallHandler, PluginRegistry.A
             if (accessToken != null) {
                 data.put("userID", accessToken.getUserId());
                 data.put("token", accessToken.getToken());
-                data.put("permissions", accessToken.getPermissions());
                 data.put("applicationID", accessToken.getApplicationId());
                 data.put("expires", dateToUnixtime(accessToken.getExpires()));
                 data.put("lastRefresh", dateToUnixtime(accessToken.getLastRefresh()));

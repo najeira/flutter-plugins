@@ -8,8 +8,11 @@ class FacebookSignIn {
   // Logs the user in with the requested read permissions.
   // "public_profile", "email", "user_friends"
   static Future<FacebookSession> signIn({List<String> premissions}) async {
-    final Map<String, dynamic> data = await _channel.invokeMethod(
+    var data = await _channel.invokeMethod(
       'signIn', <String, dynamic>{"premissions": premissions});
+    if (data == null || !(data is Map)) {
+      return null;
+    }
     var ts = new FacebookSession._(data);
     return ts;
   }
