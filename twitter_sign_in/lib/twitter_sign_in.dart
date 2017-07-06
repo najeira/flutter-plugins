@@ -18,25 +18,36 @@ class TwitterSignIn {
     var ts = new TwitterSession._(data);
     return ts;
   }
-  
-  static TwitterSession _currentSession;
-  
-  // gets the cached current session, or `null` if there is none.
-  static TwitterSession get currentSession => _currentSession;
 }
 
 class TwitterSession {
   final Map<String, dynamic> _data;
   
   TwitterSession._(this._data);
-
+  
   String get authToken => this._data['authToken'];
+  
   String get authTokenSecret => this._data['authTokenSecret'];
+  
   String get userName => this._data['userName'];
-  String get userID => this._data['userID'];
-
+  
+  int get userID => _getInt(this._data['userID']);
+  
   @override
   String toString() {
     return '$runtimeType($_data)';
   }
+}
+
+int _getInt(dynamic value) {
+  if (value == null) {
+    return 0;
+  } else if (value is int) {
+    return value;
+  } else if (value is num) {
+    return value.toInt();
+  } else if (value is String) {
+    return int.parse(value);
+  }
+  return 0;
 }

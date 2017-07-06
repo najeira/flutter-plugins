@@ -25,9 +25,7 @@
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  if ([@"getPlatformVersion" isEqualToString:call.method]) {
-    result([@"iOS " stringByAppendingString:[[UIDevice currentDevice] systemVersion]]);
-  } else if ([call.method isEqualToString:@"init"]) {
+  if ([call.method isEqualToString:@"init"]) {
     [[Twitter sharedInstance] startWithConsumerKey:call.arguments[@"consumer"] consumerSecret:call.arguments[@"secret"]];
     result(nil);
   } else if ([call.method isEqualToString:@"signIn"]) {
