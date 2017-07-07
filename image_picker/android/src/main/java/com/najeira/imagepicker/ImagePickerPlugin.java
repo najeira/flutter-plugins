@@ -7,6 +7,8 @@ import android.net.Uri;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.util.Map;
+
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
@@ -40,10 +42,18 @@ public class ImagePickerPlugin implements MethodCallHandler,
     @Override
     public void onMethodCall(MethodCall call, final Result result) {
         if ("pick".equals(call.method)) {
+            boolean isCrop = true;
+            if (call.arguments instanceof Map) {
+                final Map obj = (Map) call.arguments;
+                final Object objCrop = obj.get("crop");
+                if (objCrop != null && objCrop instanceof Boolean) {
+                    isCrop = (boolean) objCrop;
+                }
+            }
             try {
                 imagePicker = new ImagePicker();
                 imagePicker.setTitle("Photo");
-                imagePicker.setCropImage(true);
+                imagePicker.setCropImage(isCrop);
                 imagePicker.startChooser(activity, new ImagePickerCallback(result));
             } catch (Exception ex) {
                 result.error("pick", ex.getLocalizedMessage(), null);
@@ -78,7 +88,10 @@ public class ImagePickerPlugin implements MethodCallHandler,
 
         @Override
         public void onPickImage(Uri imageUri) {
-            // crop will be called after this method.
+            if (flutterResult != null) {
+                flutterResult.success(imageUri.getPath());
+                flutterResult = null;
+            }
         }
 
         @Override

@@ -35,7 +35,8 @@ class ImagePicker {
     private boolean isCropImage = true;
     private CharSequence title;
 
-    private Uri cropImageUri;
+    private Uri pickImageUri;
+    private boolean isCamera = false;
 
     void setCropImage(boolean cropImage) {
         isCropImage = cropImage;
@@ -165,7 +166,9 @@ class ImagePicker {
         Context context = (activity != null) ? activity : fragment.getContext();
         if (requestCode == CropImage.PICK_IMAGE_CHOOSER_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                Uri pickImageUri = CropImage.getPickImageResultUri(context, data);
+                pickImageUri = CropImage.getPickImageResultUri(context, data);
+                final String action = data.getAction();
+                isCamera = ((data.getData() == null) || ((action != null) && action.equals(MediaStore.ACTION_IMAGE_CAPTURE)));
                 if (CropImage.isReadExternalStoragePermissionsRequired(context, pickImageUri)) {
                     if (activity != null) {
                         ActivityCompat.requestPermissions(
@@ -179,9 +182,9 @@ class ImagePicker {
                     }
                 } else {
                     if (activity != null) {
-                        handlePickImage(activity, pickImageUri);
+                        handlePickImage(activity, pickImageUri, isCamera);
                     } else {
-                        handlePickImage(fragment, pickImageUri);
+                        handlePickImage(fragment, pickImageUri, isCamera);
                     }
                 }
             } else {
@@ -231,14 +234,14 @@ class ImagePicker {
             }
             return true;
         } else if (requestCode == CropImage.PICK_IMAGE_PERMISSIONS_REQUEST_CODE) {
-            if (cropImageUri != null
+            if (pickImageUri != null
                     && grantResults != null
                     && grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (activity != null) {
-                    handlePickImage(activity, cropImageUri);
+                    handlePickImage(activity, pickImageUri, isCamera);
                 } else {
-                    handlePickImage(fragment, cropImageUri);
+                    handlePickImage(fragment, pickImageUri, isCamera);
                 }
             } else {
                 if (callback != null) {
@@ -252,29 +255,46 @@ class ImagePicker {
 
     private void handleCropResult(Context context, CropImage.ActivityResult result) {
         if (result.getError() == null) {
-            cropImageUri = result.getUri();
+            pickImageUri = result.getUri();
             if (callback != null) {
-                callback.onCropImage(handleUri(context, cropImageUri));
+                callback.onCropImage(handleUri(context, pickImageUri));
             }
         } else {
             Log.e(TAG, "handleCropResult error", result.getError());
         }
     }
 
-    private void handlePickImage(Activity activity, Uri imageUri) {
-        handlePickImageInner(activity, null, imageUri);
+    private void handlePickImage(Activity activity, Uri imageUri, boolean isCamera) {
+        handlePickImageInner(activity, null, imageUri, isCamera);
     }
 
-    private void handlePickImage(Fragment fragment, Uri imageUri) {
-        handlePickImageInner(null, fragment, imageUri);
+    private void handlePickImage(Fragment fragment, Uri imageUri, boolean isCamera) {
+        handlePickImageInner(null, fragment, imageUri, isCamera);
     }
 
-    private void handlePickImageInner(Activity activity, Fragment fragment, Uri imageUri) {
-        if (callback != null) {
-            Context context = (activity != null) ? activity : fragment.getContext();
-            callback.onPickImage(handleUri(context, imageUri));
-        }
+    private void handlePickImageInner(Activity activity, Fragment fragment, Uri imageUri, boolean isCamera) {
         if (!isCropImage) {
+            if (callback != null) {
+                Context context = (activity != null) ? activity : fragment.getContext();
+
+                // a file name is fixed when it was captured by camera, rename it.
+                Uri realUri = handleUri(context, imageUri);
+                if (isCamera) {
+                    try {
+                        final File file = new File(realUri.getPath());
+                        final String fileName = file.getPath();
+                        final String parentName = fileName.substring(0, fileName.lastIndexOf(File.separatorChar));
+                        final String extName = fileName.substring(fileName.lastIndexOf('.'));
+                        final String renameToName = parentName + File.separator + Long.toString(System.currentTimeMillis()/1000) + extName;
+                        final File renameTo = new File(renameToName);
+                        Log.d(TAG, String.format("%s -> %s", realUri.getPath(), renameToName));
+                        if (file.renameTo(renameTo)) {
+                            realUri = Uri.fromFile(renameTo);
+                        }
+                    } catch (Exception ignored) {}
+                }
+                callback.onPickImage(realUri);
+            }
             return;
         }
         CropImage.ActivityBuilder builder = CropImage.activity(imageUri);
@@ -307,7 +327,6 @@ class ImagePicker {
         private static DocumentId parse(final Uri uri) {
             final String docId = DocumentsContract.getDocumentId(uri);
             final String[] split = docId.split(":");
-            final String type = split[0];
             return new DocumentId(split[0], split[1]);
         }
     }
