@@ -167,8 +167,9 @@ class ImagePicker {
         if (requestCode == CropImage.PICK_IMAGE_CHOOSER_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 pickImageUri = CropImage.getPickImageResultUri(context, data);
-                final String action = data.getAction();
-                isCamera = ((data.getData() == null) || ((action != null) && action.equals(MediaStore.ACTION_IMAGE_CAPTURE)));
+                final String action = (data != null) ? data.getAction() : null;
+                final Uri dataUri = (data != null) ? data.getData() : null;
+                isCamera = (dataUri == null) || MediaStore.ACTION_IMAGE_CAPTURE.equals(action);
                 if (CropImage.isReadExternalStoragePermissionsRequired(context, pickImageUri)) {
                     if (activity != null) {
                         ActivityCompat.requestPermissions(
