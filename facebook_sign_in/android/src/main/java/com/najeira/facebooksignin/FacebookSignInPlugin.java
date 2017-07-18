@@ -89,7 +89,7 @@ public class FacebookSignInPlugin implements MethodCallHandler, PluginRegistry.A
             if (accessToken != null) {
                 data.put("userID", accessToken.getUserId());
                 data.put("token", accessToken.getToken());
-                data.put("applicationID", accessToken.getApplicationId());
+                data.put("appID", accessToken.getApplicationId());
                 data.put("expires", dateToUnixtime(accessToken.getExpires()));
                 data.put("lastRefresh", dateToUnixtime(accessToken.getLastRefresh()));
             }
