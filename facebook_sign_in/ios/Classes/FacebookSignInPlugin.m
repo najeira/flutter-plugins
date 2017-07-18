@@ -27,9 +27,9 @@
 
 - (void)handleLoginWithCallback:(FlutterResult)callback result:(FBSDKLoginManagerLoginResult *)result error:(NSError *)error {
     if (error) {
-        callback([FlutterError errorWithCode:[NSString stringWithFormat:@"Error %ld", (long)error.code]
-                                     message:error.domain
-                                     details:error.localizedDescription]);
+        callback([FlutterError errorWithCode:@"facebook_sign_in"
+                                     message:error.localizedDescription
+                                     details:nil]);
     } else {
         if (result && result.token) {
             callback(@{@"token": result.token.tokenString,
