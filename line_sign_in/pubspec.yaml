@@ -1,8 +1,8 @@
 name: line_sign_in
-description: A new flutter plugin project.
+description: A Flutter plugin for LINE Sign In.
 version: 0.0.1
-author:
-homepage:
+author: najeira
+homepage: https://github.com/najeira/flutter-plugins
 
 flutter:
   plugin:
