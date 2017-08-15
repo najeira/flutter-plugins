@@ -11,14 +11,14 @@
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  if ([@"getPlatformVersion" isEqualToString:call.method]) {
-    result([@"iOS " stringByAppendingString:[[UIDevice currentDevice] systemVersion]]);
-  } else if ([@"systemVersion" isEqualToString:call.method]) {
+  if ([@"systemVersion" isEqualToString:call.method]) {
     result([[UIDevice currentDevice] systemVersion]);
   } else if ([@"model" isEqualToString:call.method]) {
     result([[UIDevice currentDevice] model]);
   } else if ([@"modelName" isEqualToString:call.method]) {
     result([self getModelName]);
+  } else if ([@"versionName" isEqualToString:call.method]) {
+    result([[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleShortVersionString"]);
   } else {
     result(FlutterMethodNotImplemented);
   }
