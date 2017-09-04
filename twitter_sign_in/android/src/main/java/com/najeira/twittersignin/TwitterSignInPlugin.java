@@ -66,7 +66,7 @@ public class TwitterSignInPlugin implements MethodCallHandler,
                 authClient = new TwitterAuthClient();
             }
             authClient.authorize(activity, new TwitterAuthorizeCallback(result));
-        } else if ("signIn".equals(call.method)) {
+        } else if ("cancelSignIn".equals(call.method)) {
             if (authClient != null) {
                 authClient.cancelAuthorize();
             }
